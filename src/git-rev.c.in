@@ -1,0 +1,5 @@
+#include "git-rev.h"
+
+const char *island_lab_git_rev = "@VCS_TAG@";
+
+// vi:ts=4:sw=4:et
