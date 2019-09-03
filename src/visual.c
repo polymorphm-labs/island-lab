@@ -5,14 +5,11 @@
 #include <stdio.h>
 
 #include "island-lab-config.h"
+#include "util.h"
 #include "visual.h"
 
-#define CFG_M(name) ISLAND_LAB_CONFIG_ ## name
-#define VIS_S(name) island_lab_
+#define UTL_S(name) island_lab_util_ ## name
 #define S(name) island_lab_visual_ ## name
-
-#define PERIMETER_SIZE (CFG_M (SIZE) * 4)
-#define BUILDINGS_SIZE (CFG_M (SIZE) * CFG_M (SIZE))
 
 static void
 print_indent (FILE *stream, int indent)
@@ -30,17 +27,17 @@ calc_log (int num)
     {
         abort ();
     }
-    
+
     if (num < 10)
     {
         return 1;
     }
-    
+
     if (num < 100)
     {
         return 2;
     }
-    
+
     if (num < 1000)
     {
         return 3;
@@ -52,7 +49,7 @@ calc_log (int num)
 static void
 print_rem_space_with_c (FILE *stream, int filled, char c)
 {
-    int cell_size = calc_log (CFG_M (SIZE)) + 1;
+    int cell_size = calc_log (UTL_S (general_size) ()) + 1;
 
     for (int i = 0; i < cell_size - filled; ++i)
     {
@@ -88,7 +85,7 @@ S (print_island) (FILE *stream, int *perimeter, int *buildings, int print_raw,
     if (print_raw) {
         print_indent (stream, indent);
         fprintf (stream, "perimeter raw seq: ");
-        for (int i = 0; i < PERIMETER_SIZE; ++i)
+        for (int i = 0; i < UTL_S (perimeter_size) (); ++i)
         {
             if (i)
             {
@@ -96,12 +93,11 @@ S (print_island) (FILE *stream, int *perimeter, int *buildings, int print_raw,
             }
             fprintf (stream, "%d", perimeter[i]);
         }
-
         fputc ('\n', stream);
 
         print_indent (stream, indent);
         fprintf (stream, "buildings raw seq: ");
-        for (int i = 0; i < BUILDINGS_SIZE; ++i)
+        for (int i = 0; i < UTL_S (buildings_size) (); ++i)
         {
             if (i)
             {
@@ -109,70 +105,65 @@ S (print_island) (FILE *stream, int *perimeter, int *buildings, int print_raw,
             }
             fprintf (stream, "%d", buildings[i]);
         }
-
         fputc ('\n', stream);
     }
 
     print_indent (stream, indent);
     print_rem_space (stream, 0);
     print_rem_space (stream, 0);
-
-    for (int i = 0; i < CFG_M (SIZE); ++i)
+    for (int i = 0; i < UTL_S (general_size) (); ++i)
     {
-        print_num_cell (stream, perimeter[i]);
+        print_num_cell (stream, perimeter[UTL_S (north_obs_idx) (i)]);
     }
-
     fputc ('\n', stream);
 
-    for (int j = -1; j < CFG_M (SIZE) + 1; ++j)
+    print_indent (stream, indent);
+    print_rem_space (stream, 0);
+    fputc ('+', stream);
+    print_rem_space_with_c (stream, 1, '-');
+    for (int i = 0; i < UTL_S (general_size) (); ++i)
+    {
+        print_rem_space_with_c (stream, 0, '-');
+    }
+    fputc ('+', stream);
+    print_rem_space (stream, 1);
+    fputc ('\n', stream);
+
+    for (int j = 0; j < UTL_S (general_size) (); ++j)
     {
         print_indent (stream, indent);
-
-        if (j == -1 || j == CFG_M (SIZE))
+        print_num_cell (stream, perimeter[UTL_S (west_obs_idx) (j)]);
+        fputc ('|', stream);
+        print_rem_space (stream, 1);
+        for (int i = 0; i < UTL_S (general_size) (); ++i)
         {
-            print_rem_space (stream, 0);
-
-            fputc ('+', stream);
-            print_rem_space_with_c (stream, 1, '-');
-
-            for (int i = 0; i < CFG_M (SIZE); ++i)
-            {
-                print_rem_space_with_c (stream, 0, '-');
-            }
-
-            fputc ('+', stream);
-            print_rem_space (stream, 1);
+            print_num_cell (stream, buildings[UTL_S (building_idx) (j, i)]);
         }
-        else
-        {
-            print_num_cell (stream, perimeter[CFG_M (SIZE) * 4 - 1 - j]);
-
-            fputc ('|', stream);
-            print_rem_space (stream, 1);
-
-            for (int i = 0; i < CFG_M (SIZE); ++i)
-            {
-                print_num_cell (stream, buildings[CFG_M (SIZE) * j + i]);
-            }
-
-            fputc ('|', stream);
-            print_rem_space (stream, 1);
-
-            print_num_cell (stream, perimeter[CFG_M (SIZE) + j]);
-        }
-
+        fputc ('|', stream);
+        print_rem_space (stream, 1);
+        print_num_cell (stream, perimeter[UTL_S (east_obs_idx) (j)]);
         fputc ('\n', stream);
     }
 
     print_indent (stream, indent);
     print_rem_space (stream, 0);
-    print_rem_space (stream, 0);
-
-    for (int i = 0; i < CFG_M (SIZE); ++i)
+    fputc ('+', stream);
+    print_rem_space_with_c (stream, 1, '-');
+    for (int i = 0; i < UTL_S (general_size) (); ++i)
     {
-        print_num_cell (stream, perimeter[CFG_M (SIZE) * 3 - 1 - i]);
+        print_rem_space_with_c (stream, 0, '-');
     }
+    fputc ('+', stream);
+    print_rem_space (stream, 1);
+    fputc ('\n', stream);
 
+    print_indent (stream, indent);
+    print_rem_space (stream, 0);
+    print_rem_space (stream, 0);
+    for (int i = 0; i < UTL_S (general_size) (); ++i)
+    {
+        print_num_cell (stream, perimeter[UTL_S (south_obs_idx) (i)]);
+    }
     fputc ('\n', stream);
 }
 

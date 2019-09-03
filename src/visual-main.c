@@ -14,14 +14,13 @@
 
 #include "island-lab-config.h"
 #include "git-rev.h"
+#include "util.h"
 #include "visual.h"
 
 #define CFG_M(name) ISLAND_LAB_CONFIG_ ## name
 #define GIT_S(name) island_lab_git_ ## name
+#define UTL_S(name) island_lab_util_ ## name
 #define VIS_S(name) island_lab_visual_ ## name
-
-#define PERIMETER_SIZE (CFG_M (SIZE) * 4)
-#define BUILDINGS_SIZE (CFG_M (SIZE) * CFG_M (SIZE))
 
 static void
 argp_print_version (FILE *stream,
@@ -121,7 +120,8 @@ static struct argp argp =
 {
     .options = argp_options,
     .parser = argp_parser,
-    .args_doc = "PERIMETER-SEQUENCE [BUILDINGS-SEQUENCE [BUILDINGS-SEQUENCE [...]]]",
+    .args_doc =
+            "PERIMETER-SEQUENCE [BUILDINGS-SEQUENCE [BUILDINGS-SEQUENCE [...]]]",
 };
 
 int
@@ -133,8 +133,8 @@ main (int argc, char *argv[])
 
     int exit_code = EXIT_SUCCESS;
     FILE *stream = stdout;
-    int *perimeter = calloc (PERIMETER_SIZE, sizeof (*perimeter));
-    int *buildings = calloc (BUILDINGS_SIZE, sizeof (*buildings));
+    int *perimeter = calloc (UTL_S (perimeter_size) (), sizeof (*perimeter));
+    int *buildings = calloc (UTL_S (buildings_size) (), sizeof (*buildings));
     int token_i;
     char *token;
     char *tok_state;
@@ -152,7 +152,8 @@ main (int argc, char *argv[])
 
         if (!arguments.perimeter_str)
         {
-            fprintf (stderr, "missing input for perimeter sequence\n");
+            fprintf (stderr,
+                    "missing input for perimeter sequence\n");
             exit_code = EXIT_FAILURE;
             goto exit;
         }
@@ -164,9 +165,10 @@ main (int argc, char *argv[])
     {
         ++token_i;
 
-        if (token_i > PERIMETER_SIZE)
+        if (token_i > UTL_S (perimeter_size) ())
         {
-            fprintf (stderr, "too long perimeter sequence: %d\n", token_i);
+            fprintf (stderr,
+                    "too long perimeter sequence: %d\n", token_i);
             exit_code = EXIT_FAILURE;
             goto exit;
         }
@@ -175,14 +177,16 @@ main (int argc, char *argv[])
 
         if (token_int < 0)
         {
-            fprintf (stderr, "too small perimeter sequence element: %d\n", token_int);
+            fprintf (stderr,
+                    "too small perimeter sequence element: %d\n", token_int);
             exit_code = EXIT_FAILURE;
             goto exit;
         }
 
-        if (token_int > CFG_M (SIZE))
+        if (token_int > UTL_S (general_size) ())
         {
-            fprintf (stderr, "too big perimeter sequence element: %d\n", token_int);
+            fprintf (stderr,
+                    "too big perimeter sequence element: %d\n", token_int);
             exit_code = EXIT_FAILURE;
             goto exit;
         }
@@ -190,9 +194,10 @@ main (int argc, char *argv[])
         perimeter[token_i - 1] = token_int;
     }
 
-    if (token_i < PERIMETER_SIZE)
+    if (token_i < UTL_S (perimeter_size) ())
     {
-        fprintf (stderr, "too short perimeter sequence: %d\n", token_i);
+        fprintf (stderr,
+                "too short perimeter sequence: %d\n", token_i);
         exit_code = EXIT_FAILURE;
         goto exit;
     }
@@ -218,7 +223,8 @@ main (int argc, char *argv[])
 
             if (!arguments.buildings_strs[i])
             {
-                fprintf (stderr, "missing input for buildings sequence\n");
+                fprintf (stderr,
+                        "missing input for buildings sequence\n");
                 exit_code = EXIT_FAILURE;
                 goto exit;
             }
@@ -236,9 +242,10 @@ main (int argc, char *argv[])
         {
             ++token_i;
 
-            if (token_i > BUILDINGS_SIZE)
+            if (token_i > UTL_S (buildings_size) ())
             {
-                fprintf (stderr, "too long buildings sequence: %d\n", token_i);
+                fprintf (stderr,
+                        "too long buildings sequence: %d\n", token_i);
                 exit_code = EXIT_FAILURE;
                 goto exit;
             }
@@ -247,14 +254,16 @@ main (int argc, char *argv[])
 
             if (token_int < 0)
             {
-                fprintf (stderr, "too small buildings sequence element: %d\n", token_int);
+                fprintf (stderr,
+                        "too small buildings sequence element: %d\n", token_int);
                 exit_code = EXIT_FAILURE;
                 goto exit;
             }
 
-            if (token_int > CFG_M (SIZE))
+            if (token_int > UTL_S (general_size) ())
             {
-                fprintf (stderr, "too big buildings sequence element: %d\n", token_int);
+                fprintf (stderr,
+                        "too big buildings sequence element: %d\n", token_int);
                 exit_code = EXIT_FAILURE;
                 goto exit;
             }
@@ -262,7 +271,7 @@ main (int argc, char *argv[])
             buildings[token_i - 1] = token_int;
         }
 
-        if (token_i < BUILDINGS_SIZE)
+        if (token_i < UTL_S (buildings_size) ())
         {
             fprintf (stderr, "too short buildings sequence: %d\n", token_i);
             exit_code = EXIT_FAILURE;
