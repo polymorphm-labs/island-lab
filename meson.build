@@ -1,8 +1,13 @@
 project('island-lab', 'c',
         version : 'PRE-1.0')
 
-sys_dep = meson.get_compiler('c').find_library('argp',
-                                               required : false)
+link_argp_opt = get_option('link-argp')
+
+sys_dep = []
+
+if link_argp_opt
+  sys_dep += meson.get_compiler('c').find_library('argp')
+endif
 
 subdir('src')
 

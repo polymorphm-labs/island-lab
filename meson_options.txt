@@ -1,0 +1,4 @@
+option('link-argp', type : 'boolean', value : false,
+    description : 'Link argp library')
+
+# vi:ts=2:sw=2:et
