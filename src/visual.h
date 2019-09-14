@@ -3,7 +3,7 @@
 
 void
 S (print_island) (FILE *stream, int *perimeter, int *buildings, int print_raw,
-    int indent);
+        int indent);
 
 void
 S (print_island_delim) (FILE *stream, int print_raw, int indent);

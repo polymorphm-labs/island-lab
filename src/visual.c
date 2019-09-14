@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+
 // abort
 #include <stdlib.h>
 
