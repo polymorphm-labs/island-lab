@@ -95,14 +95,12 @@ max_branches_exceeded (void *max_branches_exceeded_data)
 }
 
 static void
-show_iter (int iter_made, int iter_left, int branches,
-        void *show_iter_data)
+show_iter (int iter_made, int branches, void *show_iter_data)
 {
     struct resolve_hook_options *options = show_iter_data;
     FILE *stream = options->stream;
 
-    fprintf (stream, "iteration number %d (left %d): %d branches\n",
-            iter_made, iter_left, branches);
+    fprintf (stream, "iteration %d: %d branches\n", iter_made, branches);
 }
 
 static void

@@ -7,8 +7,7 @@ struct S (resolve_options)
     int show_iterations;
     void (*max_branches_exceeded) (void *max_branches_exceeded_data);
     void *max_branches_exceeded_data;
-    void (*show_iter) (int iter_made, int iter_left, int branches,
-            void *show_iter_data);
+    void (*show_iter) (int iter_made, int branches, void *show_iter_data);
     void *show_iter_data;
 };
 
