@@ -4,19 +4,19 @@
 #define S(name) island_lab_util_ ## name
 
 static inline int
-S (general_size) ()
+S (general_size) (void)
 {
     return CFG_M (SIZE);
 }
 
 static inline int
-S (perimeter_size) ()
+S (perimeter_size) (void)
 {
     return CFG_M (SIZE) * 4;
 }
 
 static inline int
-S (buildings_size) ()
+S (buildings_size) (void)
 {
     return CFG_M (SIZE) * CFG_M (SIZE);
 }
