@@ -155,6 +155,7 @@ main (int argc, char *argv[])
         .stream = stderr,
     };
     struct RSL_S (resolve_options) rsl_options = {
+        .init_buildings_heap = CFG_M (INIT_BUILDINGS_HEAP),
         .max_branches = CFG_M (DEFAULT_MAX_BRANCHES),
         .max_branches_exceeded = max_branches_exceeded,
         .max_branches_exceeded_data = &rsl_hook_options,

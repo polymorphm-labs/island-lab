@@ -58,36 +58,39 @@ hash_buildings (int *buildings)
     return h & 0xffffffff;
 }
 
-struct buildings_node
-{
-    unsigned hash;
-    int *buildings;
-};
-
 struct multiverse
 {
+    int init_buildings_heap;
     int allocated;
     int size;
     int *buildings_heap;
-    struct buildings_node *nodes;
     void *tree;
 };
 
-static void
-tdestroy_dummy_free_node (void *nodep __attribute__ ((unused))) {}
+struct buildings_node
+{
+    struct multiverse *multiverse;
+    int buildings_idx;
+    unsigned hash;
+};
 
 static void
 clear_multiverse (struct multiverse *multiverse)
 {
-    tdestroy (multiverse->tree, tdestroy_dummy_free_node);
-    free (multiverse->nodes);
+    tdestroy (multiverse->tree, free);
     free (multiverse->buildings_heap);
 
     multiverse->tree = 0;
-    multiverse->nodes = 0;
     multiverse->buildings_heap = 0;
     multiverse->size = 0;
     multiverse->allocated = 0;
+}
+
+static int *
+get_buildings_by_idx (struct multiverse *multiverse, int buildings_idx)
+{
+    return &multiverse->buildings_heap
+            [buildings_idx * UTL_S (general_size) ()];
 }
 
 static int
@@ -106,14 +109,19 @@ compare_buildings_nodes (const void *pa, const void *pb)
         return 1;
     }
 
+    int *buildings_a = get_buildings_by_idx (node_a->multiverse,
+            node_a->buildings_idx);
+    int *buildings_b = get_buildings_by_idx (node_b->multiverse,
+            node_b->buildings_idx);
+
     for (int i = 0; i < UTL_S (general_size) (); ++i)
     {
-        if (node_a->buildings[i] < node_b->buildings[i])
+        if (buildings_a[i] < buildings_b[i])
         {
             return -1;
         }
 
-        if (node_a->buildings[i] > node_b->buildings[i])
+        if (buildings_a[i] > buildings_b[i])
         {
             return 1;
         }
@@ -122,8 +130,8 @@ compare_buildings_nodes (const void *pa, const void *pb)
     return 0;
 }
 
-static struct buildings_node *
-allocate_buildings_node (struct multiverse *multiverse)
+static int
+allocate_buildings_idx (struct multiverse *multiverse)
 {
     // WARNING! it's VARY dangerous function:
     //      memory could be reallocated to another addresses after it is executed.
@@ -137,38 +145,43 @@ allocate_buildings_node (struct multiverse *multiverse)
         }
         else
         {
-            multiverse->allocated = 1024;
+            multiverse->allocated = multiverse->init_buildings_heap;
         }
 
-        multiverse->nodes = reallocarray (multiverse->nodes,
-                multiverse->allocated,
-                sizeof (*multiverse->nodes));
         multiverse->buildings_heap = reallocarray (multiverse->buildings_heap,
                 multiverse->allocated * UTL_S (general_size) (),
                 sizeof (*multiverse->buildings_heap));
 
-        if (!multiverse->nodes || !multiverse->buildings_heap)
+        if (!multiverse->buildings_heap)
         {
             abort ();
         }
     }
 
-    struct buildings_node *node = &multiverse->nodes[multiverse->size];
-
-    node->buildings = &multiverse->buildings_heap
-            [multiverse->size * UTL_S (general_size) ()];
-
-    return node;
+    return multiverse->size;
 }
 
 static void
 add_allocated_buildings_node (struct multiverse *multiverse)
 {
-    struct buildings_node *node = &multiverse->nodes[multiverse->size];
+    int buildings_idx = multiverse->size;
+    int *buildings = get_buildings_by_idx (multiverse, buildings_idx);
+    unsigned hash = hash_buildings (buildings);
 
-    node->hash = hash_buildings (node->buildings);
+    struct buildings_node *node = malloc (sizeof (*node));
 
-    struct buildings_node *found_node = tsearch (node, &multiverse->tree,
+    if (!node)
+    {
+        abort ();
+    }
+
+    *node = (struct buildings_node) {
+        .multiverse = multiverse,
+        .buildings_idx = buildings_idx,
+        .hash = hash,
+    };
+
+    struct buildings_node **found_node = tsearch (node, &multiverse->tree,
             compare_buildings_nodes);
 
     if (!found_node)
@@ -176,10 +189,11 @@ add_allocated_buildings_node (struct multiverse *multiverse)
         abort ();
     }
 
-    if (found_node != node)
+    if (*found_node != node)
     {
-        // a duplicate node was found. stop adding this node
+        // a duplicate node was found. canceling adding a new node
 
+        free (node);
         return;
     }
 
@@ -191,6 +205,25 @@ copy_buildings (int *src_buildings, int *dst_buildings)
 {
     memcpy (dst_buildings, src_buildings,
             UTL_S (buildings_size) () * sizeof (*src_buildings));
+}
+
+static int *
+allocate_buildings_copy (struct multiverse *multiverse, int *src_buildings)
+{
+    int buildings_idx = allocate_buildings_idx (multiverse);
+    int *dst_buildings = get_buildings_by_idx (multiverse, buildings_idx);
+    copy_buildings (src_buildings, dst_buildings);
+
+    return dst_buildings;
+}
+
+static void
+add_buildings_copy (struct multiverse *multiverse, int *buildings)
+{
+    // adding buildings copy to a multiverse
+
+    allocate_buildings_copy (multiverse, buildings);
+    add_allocated_buildings_node (multiverse);
 }
 
 struct multiverse_iter_item
@@ -248,7 +281,7 @@ return_buildingss (struct multiverse *multiverse,
 
     for (int i = 0; i < size; ++i)
     {
-        int *buildings = multiverse->nodes[i].buildings;
+        int *buildings = get_buildings_by_idx (multiverse, i);
         buildingss[i] = calloc (UTL_S (buildings_size) (),
                 sizeof (*buildingss[i]));
 
@@ -257,7 +290,7 @@ return_buildingss (struct multiverse *multiverse,
             abort ();
         }
 
-        copy_buildings(buildings, buildingss[i]);
+        copy_buildings (buildings, buildingss[i]);
     }
 
     *returned_buildingss_ptr = buildingss;
@@ -268,8 +301,12 @@ int
 S (resolve) (int *perimeter, int *buildings, int ***resolved_buildingss_ptr,
         struct S (resolve_options) *options)
 {
-    struct multiverse multiverse1 = {};
-    struct multiverse multiverse2 = {};
+    struct multiverse multiverse1 = {
+        .init_buildings_heap = options->init_buildings_heap,
+    };
+    struct multiverse multiverse2 = {
+        .init_buildings_heap = options->init_buildings_heap,
+    };
     struct multiverse *multiverse_a = &multiverse1;
     struct multiverse *multiverse_b = &multiverse2;
     struct multiverse *multiverse_swp;
@@ -293,23 +330,24 @@ S (resolve) (int *perimeter, int *buildings, int ***resolved_buildingss_ptr,
             int j = iter_items[iter].j;
             int i = iter_items[iter].i;
 
-            for (int n = 0; n < multiverse_a->size; ++n)
+            for (int buildings_idx = 0;
+                    buildings_idx < multiverse_a->size;
+                    ++buildings_idx)
             {
-                int *prev_buildings = multiverse_a->nodes[n].buildings;
+                int *prev_buildings = get_buildings_by_idx (multiverse_a,
+                        buildings_idx);
 
                 for (int building = 1;
                         building <= UTL_S (general_size) ();
                         ++building)
                 {
-                    struct buildings_node *next_node =
-                            allocate_buildings_node (multiverse_b);
-                    copy_buildings (prev_buildings, next_node->buildings);
+                    int *next_buildings = allocate_buildings_copy (
+                            multiverse_a, prev_buildings);
 
-                    next_node->buildings[UTL_S (building_idx) (j, i)] =
-                            building;
+                    next_buildings[UTL_S (building_idx) (j, i)] = building;
 
-                    if (are_buildings_allowed (
-                            perimeter, next_node->buildings, j, i))
+                    if (are_buildings_allowed (perimeter, next_buildings,
+                            j, i))
                     {
                         add_allocated_buildings_node (multiverse_b);
                     }
@@ -349,26 +387,21 @@ S (resolve) (int *perimeter, int *buildings, int ***resolved_buildingss_ptr,
         //      the resolved answer is already here,
         //      but it still can be wrong
 
-        struct buildings_node *next_node =
-                allocate_buildings_node (multiverse_a);
-
-        copy_buildings (buildings, next_node->buildings);
-        add_allocated_buildings_node (multiverse_a);
+        add_buildings_copy (multiverse_a, buildings);
     }
 
     // final checking all buildings in the multiverse and returning good ones
 
-    for (int n = 0; n < multiverse_a->size; ++n)
+    for (int buildings_idx = 0;
+            buildings_idx < multiverse_a->size;
+            ++buildings_idx)
     {
-        int *prev_buildings = multiverse_a->nodes[n].buildings;
+        int *prev_buildings = get_buildings_by_idx (multiverse_a,
+                buildings_idx);
 
         if (are_all_buildings_allowed (perimeter, prev_buildings))
         {
-            struct buildings_node *next_node =
-                    allocate_buildings_node (multiverse_b);
-
-            copy_buildings (prev_buildings, next_node->buildings);
-            add_allocated_buildings_node (multiverse_b);
+            add_buildings_copy (multiverse_b, prev_buildings);
         }
     }
 

@@ -3,6 +3,7 @@
 
 struct S (resolve_options)
 {
+    int init_buildings_heap;
     int max_branches;
     int show_iterations;
     void (*max_branches_exceeded) (void *max_branches_exceeded_data);
