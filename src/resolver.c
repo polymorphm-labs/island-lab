@@ -6,6 +6,7 @@
 // memcpy
 #include <string.h>
 
+// t*
 #include <search.h>
 
 #include "island-lab-config.h"
@@ -15,30 +16,194 @@
 #define UTL_S(name) island_lab_util_ ## name
 #define S(name) island_lab_resolver_ ## name
 
+
+static int
+is_line_unique (int *buildings, int (*line_building_idx) (int cns, int var),
+        int cns)
+{
+    // checking for the puzzle's rule about line's uniqueness.
+    //
+    // use cases:
+    //      for horizontal line:
+    //          line_building_idx=hori_building_idx
+    //      for vertical line:
+    //          line_building_idx=vert_building_idx
+
+    for (int a = 0; a < UTL_S (general_size) (); ++a)
+    {
+        int building_a = buildings[line_building_idx (cns, a)];
+
+        if (!building_a)
+        {
+            continue;
+        }
+
+        for (int b = 0; b < UTL_S (general_size) (); ++b)
+        {
+            int building_b = buildings[line_building_idx (cns, b)];
+
+            if (b != a && building_b && building_b == building_a)
+            {
+                return 0;
+            }
+        }
+    }
+
+    return 1;
+}
+
+static int
+is_observer_possible (int *perimeter, int *buildings,
+        int (*side_obs_idx) (int cns),
+        int (*line_building_idx) (int cns, int var), int cns)
+{
+    // checking for the puzzle's rule about side observer possibility.
+    //
+    // use cases for various sides of the world:
+    //      north side:
+    //          side_obs_idx=north_obs_idx
+    //          line_building_idx=vert_building_idx
+    //      east side:
+    //          side_obs_idx=east_obs_idx
+    //          line_building_idx=rev_hori_building_idx
+    //      south side:
+    //          side_obs_idx=south_obs_idx
+    //          line_building_idx=rev_vert_building_idx
+    //      west side:
+    //          side_obs_idx=west_obs_idx
+    //          line_building_idx=hori_building_idx
+
+    int obs = perimeter[side_obs_idx (cns)];
+
+    if (!obs)
+    {
+        return 1;
+    }
+
+    int seen_min = 0;
+    int seen_max = 0;
+    int seen_in_dark = 0;
+    int prev_building = 1;
+
+    for (int var = 0; var < UTL_S (general_size) (); ++var)
+    {
+        int building = buildings[line_building_idx (cns, var)];
+
+        if (!building)
+        {
+            ++seen_in_dark;
+
+            if (var < UTL_S (general_size) () - 1)
+            {
+                continue;
+            }
+        }
+
+        if (building < prev_building)
+        {
+            building = prev_building;
+        }
+
+        int max_seen_in_dark = building - prev_building - 1;
+
+        if (max_seen_in_dark < 0)
+        {
+            max_seen_in_dark = 0;
+        }
+
+        if (seen_in_dark > max_seen_in_dark)
+        {
+            seen_in_dark = max_seen_in_dark;
+        }
+
+        seen_min += building - prev_building;
+        seen_max += building - prev_building + seen_in_dark;
+
+        seen_in_dark = 0;
+        prev_building = building;
+    }
+
+    return obs >= seen_min && obs <= seen_max;
+}
+
 static int
 are_buildings_allowed (int *perimeter, int *buildings, int j, int i)
 {
-    // checking for the pazzle's rules!
+    // checking for the puzzle's rules!
     // whe should not check every building.
     // looking at line(j) and row(i) should be enough.
 
-    return 0; // TEST/ONLY STUB
-    // TODO         ... ... ...
+    // checking for horizontal line uniqueness
+
+    if (j != -1 && !is_line_unique (buildings, UTL_S (hori_building_idx), j))
+    {
+        return 0;
+    }
+
+    // checking for vertical line uniqueness
+
+    if (i != -1 && !is_line_unique (buildings, UTL_S (vert_building_idx), i))
+    {
+        return 0;
+    }
+
+    // checking for north observer possibility
+
+    if (i != -1 && !is_observer_possible (perimeter, buildings,
+            UTL_S (north_obs_idx), UTL_S (vert_building_idx), i))
+    {
+        return 0;
+    }
+
+    // checking for east observer possibility
+
+    if (j != -1 && !is_observer_possible (perimeter, buildings,
+            UTL_S (east_obs_idx), UTL_S (rev_hori_building_idx), j))
+    {
+        return 0;
+    }
+
+    // checking for south observer possibility
+
+    if (i != -1 && !is_observer_possible (perimeter, buildings,
+            UTL_S (south_obs_idx), UTL_S (rev_vert_building_idx), i))
+    {
+        return 0;
+    }
+
+    // checking for west observer possibility
+
+    if (j != -1 && !is_observer_possible (perimeter, buildings,
+            UTL_S (west_obs_idx), UTL_S (hori_building_idx), j))
+    {
+        return 0;
+    }
+
+    return 1;
 }
 
 static int
 are_all_buildings_allowed (int *perimeter, int *buildings)
 {
-    // version of checking pazzle's rules for all buildings on the island
+    // version of checking puzzle's rules for all buildings on the island
+
+    // all horizontal rules
 
     for (int j = 0; j < UTL_S (general_size) (); ++j)
     {
-        for (int i = 0; i < UTL_S (general_size) (); ++i)
+        if (!are_buildings_allowed (perimeter, buildings, j, -1))
         {
-            if (!are_buildings_allowed (perimeter, buildings, j, i))
-            {
-                return 0;
-            }
+            return 0;
+        }
+    }
+
+    // all vertical rules
+
+    for (int i = 0; i < UTL_S (general_size) (); ++i)
+    {
+        if (!are_buildings_allowed (perimeter, buildings, -1, i))
+        {
+            return 0;
         }
     }
 

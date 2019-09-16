@@ -12,13 +12,13 @@ S (general_size) (void)
 static inline int
 S (perimeter_size) (void)
 {
-    return CFG_M (SIZE) * 4;
+    return S (general_size) () * 4;
 }
 
 static inline int
 S (buildings_size) (void)
 {
-    return CFG_M (SIZE) * CFG_M (SIZE);
+    return S (general_size) () * S (general_size) ();
 }
 
 static inline int
@@ -30,49 +30,49 @@ S (north_obs_idx) (int i)
 static inline int
 S (east_obs_idx) (int j)
 {
-    return CFG_M (SIZE) + j;
+    return S (general_size) () + j;
 }
 
 static inline int
 S (south_obs_idx) (int i)
 {
-    return CFG_M (SIZE) * 3 - 1 - i;
+    return S (general_size) () * 3 - 1 - i;
 }
 
 static inline int
 S (west_obs_idx) (int j)
 {
-    return CFG_M (SIZE) * 4 - 1 - j;
+    return S (general_size) () * 4 - 1 - j;
 }
 
 static inline int
 S (building_idx) (int j, int i)
 {
-    return CFG_M (SIZE) * j + i;
+    return S (general_size) () * j + i;
 }
 
 static inline int
-S (has_north_building) (int j)
+S (hori_building_idx) (int cns, int var)
 {
-    return j > 0;
+    return S (building_idx) (cns, var);
 }
 
 static inline int
-S (has_east_building) (int i)
+S (vert_building_idx) (int cns, int var)
 {
-    return i < CFG_M (SIZE) - 1;
+    return S (building_idx) (var, cns);
 }
 
 static inline int
-S (has_south_building) (int j)
+S (rev_hori_building_idx) (int cns, int var)
 {
-    return j < CFG_M (SIZE) - 1;
+    return S (building_idx) (cns, S (general_size) () - var - 1);
 }
 
 static inline int
-S (has_west_building) (int i)
+S (rev_vert_building_idx) (int cns, int var)
 {
-    return i > 0;
+    return S (building_idx) (S (general_size) () - var - 1, cns);
 }
 
 #pragma pop_macro ("CFG_M")
