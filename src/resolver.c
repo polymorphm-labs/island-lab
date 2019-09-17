@@ -481,6 +481,7 @@ S (resolve) (int *perimeter, int *buildings, int ***resolved_buildingss_ptr,
     // first, getting list all planned iterations
 
     iter_items_size = prepare_iterations (buildings, &iter_items);
+    add_buildings_copy (multiverse_a, buildings);
 
     // if planned iterations are got,
     // the next cycle will step-by-step try to apply these iterations
@@ -545,14 +546,6 @@ S (resolve) (int *perimeter, int *buildings, int ***resolved_buildingss_ptr,
                 break;
             }
         }
-    }
-    else
-    {
-        // a special case:
-        //      the resolved answer is already here,
-        //      but it still can be wrong
-
-        add_buildings_copy (multiverse_a, buildings);
     }
 
     // final checking all buildings in the multiverse and returning good ones
