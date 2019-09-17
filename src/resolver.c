@@ -508,7 +508,7 @@ S (resolve) (int *perimeter, int *buildings, int ***resolved_buildingss_ptr,
                         ++building)
                 {
                     int *next_buildings = allocate_buildings_copy (
-                            multiverse_a, prev_buildings);
+                            multiverse_b, prev_buildings);
 
                     next_buildings[UTL_S (building_idx) (j, i)] = building;
 
