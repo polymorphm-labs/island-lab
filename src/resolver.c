@@ -80,8 +80,9 @@ is_observer_possible (int *perimeter, int *buildings,
         return 1;
     }
 
-    int min_seen = 0;
-    int max_seen = 0;
+    int seen = 0;
+    int min_can_be_seen = 0;
+    int max_can_be_seen = 0;
     int seen_in_dark = 0;
     int prev_building = 0;
 
@@ -91,6 +92,15 @@ is_observer_possible (int *perimeter, int *buildings,
 
         if (!building)
         {
+            if (!min_can_be_seen && prev_building < UTL_S (general_size) ())
+            {
+                // this building (in the dark) can hide some count of
+                // next buildings. it isn't any number, but we don't want
+                // to calculate exact number of these hidden buildings.
+
+                min_can_be_seen = seen + 1;
+            }
+
             ++seen_in_dark;
             continue;
         }
@@ -100,18 +110,18 @@ is_observer_possible (int *perimeter, int *buildings,
             building = prev_building;
         }
 
-        int min_seen_delta = building != prev_building;
-        int max_seen_in_dark = building - prev_building - min_seen_delta;
+        int seen_delta = building != prev_building;
+        int max_can_be_seen_in_dark = building - prev_building - seen_delta;
 
-        if (seen_in_dark > max_seen_in_dark)
+        if (seen_in_dark > max_can_be_seen_in_dark)
         {
-            seen_in_dark = max_seen_in_dark;
+            seen_in_dark = max_can_be_seen_in_dark;
         }
 
-        int max_seen_delta = min_seen_delta + seen_in_dark;
+        int max_can_be_seen_delta = seen_delta + seen_in_dark;
 
-        min_seen += min_seen_delta;
-        max_seen += max_seen_delta;
+        seen += seen_delta;
+        max_can_be_seen += max_can_be_seen_delta;
 
         seen_in_dark = 0;
         prev_building = building;
@@ -119,20 +129,24 @@ is_observer_possible (int *perimeter, int *buildings,
 
     if (seen_in_dark)
     {
-        int max_seen_in_dark = UTL_S (general_size) () - prev_building;
+        // there is some darkness behind of the real seen buildings
 
-        if (seen_in_dark > max_seen_in_dark)
+        int max_can_be_seen_in_dark = UTL_S (general_size) () - prev_building;
+
+        if (seen_in_dark > max_can_be_seen_in_dark)
         {
-            seen_in_dark = max_seen_in_dark;
+            seen_in_dark = max_can_be_seen_in_dark;
         }
 
-        max_seen += seen_in_dark;
+        max_can_be_seen += seen_in_dark;
     }
 
-    // TODO     it is NOT fully-correct version of observer checking.
-    //          this implementation may return FALSE WRONG answers!!!
+    if (!min_can_be_seen)
+    {
+        min_can_be_seen = seen;
+    }
 
-    return obs >= min_seen && obs <= max_seen;
+    return obs >= min_can_be_seen && obs <= max_can_be_seen;
 }
 
 static int
