@@ -80,10 +80,10 @@ is_observer_possible (int *perimeter, int *buildings,
         return 1;
     }
 
-    int seen_min = 0;
-    int seen_max = 0;
+    int min_seen = 0;
+    int max_seen = 0;
     int seen_in_dark = 0;
-    int prev_building = 1;
+    int prev_building = 0;
 
     for (int var = 0; var < UTL_S (general_size) (); ++var)
     {
@@ -92,11 +92,7 @@ is_observer_possible (int *perimeter, int *buildings,
         if (!building)
         {
             ++seen_in_dark;
-
-            if (var < UTL_S (general_size) () - 1)
-            {
-                continue;
-            }
+            continue;
         }
 
         if (building < prev_building)
@@ -104,26 +100,39 @@ is_observer_possible (int *perimeter, int *buildings,
             building = prev_building;
         }
 
-        int max_seen_in_dark = building - prev_building - 1;
-
-        if (max_seen_in_dark < 0)
-        {
-            max_seen_in_dark = 0;
-        }
+        int min_seen_delta = building != prev_building;
+        int max_seen_in_dark = building - prev_building - min_seen_delta;
 
         if (seen_in_dark > max_seen_in_dark)
         {
             seen_in_dark = max_seen_in_dark;
         }
 
-        seen_min += building - prev_building;
-        seen_max += building - prev_building + seen_in_dark;
+        int max_seen_delta = min_seen_delta + seen_in_dark;
+
+        min_seen += min_seen_delta;
+        max_seen += max_seen_delta;
 
         seen_in_dark = 0;
         prev_building = building;
     }
 
-    return obs >= seen_min && obs <= seen_max;
+    if (seen_in_dark)
+    {
+        int max_seen_in_dark = UTL_S (general_size) () - prev_building;
+
+        if (seen_in_dark > max_seen_in_dark)
+        {
+            seen_in_dark = max_seen_in_dark;
+        }
+
+        max_seen += seen_in_dark;
+    }
+
+    // TODO     it is NOT fully-correct version of observer checking.
+    //          this implementation may return FALSE WRONG answers!!!
+
+    return obs >= min_seen && obs <= max_seen;
 }
 
 static int
