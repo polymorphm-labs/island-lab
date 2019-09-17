@@ -421,32 +421,109 @@ struct multiverse_iter_item
 };
 
 static int
+compare_multiverse_iter_items (const void *pa, const void *pb)
+{
+    const struct multiverse_iter_item *item_a = pa;
+    const struct multiverse_iter_item *item_b = pb;
+
+    if (item_a->j < item_b->j)
+    {
+        return -1;
+    }
+
+    if (item_a->j > item_b->j)
+    {
+        return 1;
+    }
+
+    if (item_a->i < item_b->i)
+    {
+        return -1;
+    }
+
+    if (item_a->i > item_b->i)
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int
 prepare_iterations (int *buildings, struct multiverse_iter_item **iter_items_ptr)
 {
+    // this function gets sequence (iter_items) of the resolving buildings.
+    // but besides we want to have a specific order of this sequence.
+    //
+    // let the order is from the island's border to the island's centre.
+    // the Pythagorean theorem will help us!
+
+    float centre = ((float) UTL_S (general_size) () - 1.0f) / 2.0f;
+
     int size = 0;
     struct multiverse_iter_item *iter_items = 0;
+    struct multiverse_iter_item iter_item;
+    struct multiverse_iter_item best_iter_item;
+    float distance;
+    float best_distance;
 
-    for (int j = 0; j < UTL_S (general_size) (); ++j)
+    for (;;)
     {
-        for (int i = 0; i < UTL_S (general_size) (); ++i)
+        int found = 0;
+
+        for (int j = 0; j < UTL_S (general_size) (); ++j)
         {
-            if (!buildings[UTL_S (building_idx) (j, i)])
+            for (int i = 0; i < UTL_S (general_size) (); ++i)
             {
-                ++size;
-                iter_items = reallocarray (iter_items, size,
-                        sizeof (*iter_items));
-
-                if (!iter_items)
+                if (!buildings[UTL_S (building_idx) (j, i)])
                 {
-                    abort ();
-                }
+                    distance = ((float) j - centre) * ((float) j - centre) +
+                            ((float) i - centre) * ((float) i - centre);
 
-                iter_items[size - 1] = (struct multiverse_iter_item) {
-                    .j = j,
-                    .i = i,
-                };
+                    if (!found || distance > best_distance)
+                    {
+                        iter_item = (struct multiverse_iter_item) {
+                            .j = j,
+                            .i = i,
+                        };
+
+                        int already_have = 0;
+
+                        for (int iter = 0; iter < size; ++iter)
+                        {
+                            if (compare_multiverse_iter_items (
+                                    &iter_items[iter], &iter_item) == 0)
+                            {
+                                already_have = 1;
+                                break;
+                            }
+                        }
+
+                        if (!already_have)
+                        {
+                            best_iter_item = iter_item;
+                            best_distance = distance;
+                            found = 1;
+                        }
+                    }
+                }
             }
         }
+
+        if (!found)
+        {
+            break;
+        }
+
+        ++size;
+        iter_items = reallocarray (iter_items, size, sizeof (*iter_items));
+
+        if (!iter_items)
+        {
+            abort ();
+        }
+
+        iter_items[size - 1] = best_iter_item;
     }
 
     *iter_items_ptr = iter_items;
