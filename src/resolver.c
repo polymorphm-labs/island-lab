@@ -255,7 +255,7 @@ static int *
 get_buildings_by_idx (struct multiverse *multiverse, int buildings_idx)
 {
     return &multiverse->buildings_heap
-            [buildings_idx * UTL_S (general_size) ()];
+            [buildings_idx * UTL_S (buildings_size) ()];
 }
 
 static int
@@ -279,7 +279,7 @@ compare_buildings_nodes (const void *pa, const void *pb)
     int *buildings_b = get_buildings_by_idx (node_b->multiverse,
             node_b->buildings_idx);
 
-    for (int i = 0; i < UTL_S (general_size) (); ++i)
+    for (int i = 0; i < UTL_S (buildings_size) (); ++i)
     {
         if (buildings_a[i] < buildings_b[i])
         {
@@ -314,7 +314,7 @@ allocate_buildings_idx (struct multiverse *multiverse)
         }
 
         multiverse->buildings_heap = reallocarray (multiverse->buildings_heap,
-                multiverse->allocated * UTL_S (general_size) (),
+                multiverse->allocated * UTL_S (buildings_size) (),
                 sizeof (*multiverse->buildings_heap));
 
         if (!multiverse->buildings_heap)
