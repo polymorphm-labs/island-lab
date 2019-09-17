@@ -464,8 +464,11 @@ return_buildingss (struct multiverse *multiverse,
 
 int
 S (resolve) (int *perimeter, int *buildings, int ***resolved_buildingss_ptr,
-        struct S (resolve_options) *options)
+        struct S (resolve_options) *options, int *error_ptr)
 {
+    int resolved = 0;
+    *error_ptr = 0;
+
     struct multiverse multiverse1 = {
         .init_buildings_heap = options->init_buildings_heap,
     };
@@ -521,12 +524,8 @@ S (resolve) (int *perimeter, int *buildings, int ***resolved_buildingss_ptr,
 
                 if (multiverse_b->size > options->max_branches)
                 {
-                    if (options->max_branches_exceeded)
-                    {
-                        options->max_branches_exceeded (
-                                options->max_branches_exceeded_data);
-                    }
-                    abort ();
+                    *error_ptr = S (max_branches_exceeded_error);
+                    goto exit;
                 }
             }
 
@@ -566,8 +565,9 @@ S (resolve) (int *perimeter, int *buildings, int ***resolved_buildingss_ptr,
     // returning result into a new memory blocks
     // and freeing the other memory blocks
 
-    int resolved = return_buildingss (multiverse_b, resolved_buildingss_ptr);
+    resolved = return_buildingss (multiverse_b, resolved_buildingss_ptr);
 
+exit:
     free (iter_items);
     clear_multiverse (&multiverse2);
     clear_multiverse (&multiverse1);

@@ -84,17 +84,6 @@ struct resolve_hook_options
 };
 
 static void
-max_branches_exceeded (void *max_branches_exceeded_data)
-{
-    struct resolve_hook_options *options = max_branches_exceeded_data;
-    FILE *stream = options->stream;
-
-    fprintf (stream, "max branches exceeded! "
-            "use environment variable %s to increase this limit\n",
-            ENV_NAME ("MAX_BRANCHES"));
-}
-
-static void
 show_iter (int iter_made, int branches, void *show_iter_data)
 {
     struct resolve_hook_options *options = show_iter_data;
@@ -150,6 +139,7 @@ main (int argc, char *argv[])
     char *tok_state;
     int token_int;
     int resolved = 0;
+    int error;
     int **resolved_buildingss = 0;
     struct resolve_hook_options rsl_hook_options = {
         .stream = stderr,
@@ -157,8 +147,6 @@ main (int argc, char *argv[])
     struct RSL_S (resolve_options) rsl_options = {
         .init_buildings_heap = CFG_M (INIT_BUILDINGS_HEAP),
         .max_branches = CFG_M (DEFAULT_MAX_BRANCHES),
-        .max_branches_exceeded = max_branches_exceeded,
-        .max_branches_exceeded_data = &rsl_hook_options,
         .show_iter = show_iter,
         .show_iter_data = &rsl_hook_options,
     };
@@ -292,7 +280,22 @@ main (int argc, char *argv[])
     }
 
     resolved = RSL_S (resolve) (perimeter, buildings, &resolved_buildingss,
-            &rsl_options);
+            &rsl_options, &error);
+
+    if (!resolved && error)
+    {
+        switch (error)
+        {
+            case RSL_S (max_branches_exceeded_error):
+                fprintf (stderr, "max branches exceeded! "
+                        "use environment variable %s to increase this limit\n",
+                        ENV_NAME ("MAX_BRANCHES"));
+                break;
+        }
+
+        exit_code = EXIT_FAILURE;
+        goto exit;
+    }
 
     for (int i = 0; i < resolved; ++i)
     {
