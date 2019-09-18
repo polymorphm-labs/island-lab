@@ -105,23 +105,26 @@ is_observer_possible (int *perimeter, int *buildings,
             continue;
         }
 
-        if (building < prev_building)
+        if (building <= prev_building)
         {
-            building = prev_building;
+            // we don't see this building.
+            // it's the same as there is no the building here at all even dark!
+
+            continue;
         }
 
-        int seen_delta = building != prev_building;
-        int max_can_be_seen_in_dark = building - prev_building - seen_delta;
+        // a regular use case: we really see the building.
+        // and some buildings can be in the dark between two seen buildings
+
+        int max_can_be_seen_in_dark = building - prev_building - 1;
 
         if (seen_in_dark > max_can_be_seen_in_dark)
         {
             seen_in_dark = max_can_be_seen_in_dark;
         }
 
-        int max_can_be_seen_delta = seen_delta + seen_in_dark;
-
-        seen += seen_delta;
-        max_can_be_seen += max_can_be_seen_delta;
+        seen += 1;
+        max_can_be_seen += 1 + seen_in_dark;
 
         seen_in_dark = 0;
         prev_building = building;
