@@ -60,6 +60,7 @@ is_observer_possible (int *perimeter, int *buildings,
     // checking for the puzzle's rule about side observer possibility.
     //
     // use cases for various sides of the world:
+    //
     //      north side:
     //          side_obs_idx=north_obs_idx
     //          line_building_idx=vert_building_idx
@@ -72,89 +73,113 @@ is_observer_possible (int *perimeter, int *buildings,
     //      west side:
     //          side_obs_idx=west_obs_idx
     //          line_building_idx=hori_building_idx
+    //
+    // this function counts three metrics:
+    //
+    //      * real_seen_cnt:
+    //          real situation with REVEALED building only.
+    //          how many real buildings we see RIGHT NOW.
+    //      * pessim_seen_cnt:
+    //          pessimistic prediction. how many buildings WOULD BE if some
+    //          too tall and yet unrevealed building hid the other buildings.
+    //      * optim_seen_cnt:
+    //          optimistic prediction. how many buildings WOULD BE if
+    //          unrevealed buildings ordered with accuracy by their height.
+    //
+    // for simplify implementation (and execute speed) we don't take into
+    // account uniqueness buildings in the line.
+    //
+    // in the end of the function we can give a FALSE-POSITIVE result,
+    // but we are forbidden to give a FALSE-NEGATIVE result.
 
     int obs = perimeter[side_obs_idx (cns)];
 
     if (!obs)
     {
+        // anything is allowed! observer is absent
+
         return 1;
     }
 
-    int seen = 0;
-    int min_can_be_seen = 0;
-    int max_can_be_seen = 0;
-    int seen_in_dark = 0;
-    int prev_building = 0;
+    int real_seen_cnt = 0;
+    int pessim_seen_cnt = 0;
+    int optim_seen_cnt = 0;
 
-    for (int var = 0; var < UTL_S (general_size) (); ++var)
+    // real seen buildings metric
+
+    for (int var = 0, prev_building = 0;
+            var < UTL_S (general_size) () &&
+            prev_building < UTL_S (general_size) ();
+            ++var)
+    {
+        int building = buildings[line_building_idx (cns, var)];
+
+        if (building <= prev_building)
+        {
+            continue;
+        }
+
+        ++real_seen_cnt;
+        prev_building = building;
+    }
+
+    // pessimistic prediction metric
+
+    for (int var = 0, prev_building = 0;
+            var < UTL_S (general_size) () &&
+            prev_building < UTL_S (general_size) ();
+            ++var)
     {
         int building = buildings[line_building_idx (cns, var)];
 
         if (!building)
         {
-            if (!min_can_be_seen && prev_building < UTL_S (general_size) ())
-            {
-                // this building (in the dark) can hide some count of
-                // next buildings. it isn't any number, but we don't want
-                // to calculate exact number of these hidden buildings.
+            building = UTL_S (general_size) ();
 
-                min_can_be_seen = seen + 1;
-            }
-
-            ++seen_in_dark;
-            continue;
+            // this hypothetical tallest building will hide the other
         }
 
         if (building <= prev_building)
         {
-            // we don't see this building.
-            // it's the same as there is no the building here at all even dark!
-
             continue;
         }
 
-        // a regular use case: we really see the building.
-        // and some buildings can be in the dark between two seen buildings
-
-        int max_can_be_seen_in_dark = building - prev_building - 1;
-
-        if (seen_in_dark > max_can_be_seen_in_dark)
-        {
-            seen_in_dark = max_can_be_seen_in_dark;
-        }
-
-        seen += 1;
-        max_can_be_seen += 1 + seen_in_dark;
-
-        seen_in_dark = 0;
+        ++pessim_seen_cnt;
         prev_building = building;
     }
 
-    if (seen_in_dark)
+    // optimistic prediction metric
+
+    for (int var = 0, prev_building = 0;
+            var < UTL_S (general_size) () &&
+            prev_building < UTL_S (general_size) ();
+            ++var)
     {
-        // there is some darkness behind of the real seen buildings
+        int building = buildings[line_building_idx (cns, var)];
 
-        int max_can_be_seen_in_dark = UTL_S (general_size) () - prev_building;
-
-        if (seen_in_dark > max_can_be_seen_in_dark)
+        if (!building)
         {
-            seen_in_dark = max_can_be_seen_in_dark;
+            building = prev_building + 1;
         }
 
-        max_can_be_seen += seen_in_dark;
+        if (building <= prev_building)
+        {
+            continue;
+        }
+
+        ++optim_seen_cnt;
+        prev_building = building;
     }
 
-    if (seen && (!min_can_be_seen || seen < min_can_be_seen))
-    {
-        // it could be two various situations when
-        // real seen is more correct than min_can_be_seen:
-        //      * when real seen is initialized but min_can_be_seen is not
-        //      * or when both initialized but real seen is less
+    // in some use cases real_seen_cnt value could be less
+    // than pessim_seen_cnt value.
+    // so we have to choose the least value from them
+    // to avoid false-negative result answering.
+    //
+    // but we assert optim_seen_cnt value is always the greatest.
 
-        min_can_be_seen = seen;
-    }
-
-    return obs >= min_can_be_seen && obs <= max_can_be_seen;
+    return (obs >= pessim_seen_cnt || obs >= real_seen_cnt) &&
+            obs <= optim_seen_cnt;
 }
 
 static int
