@@ -141,8 +141,13 @@ is_observer_possible (int *perimeter, int *buildings,
         max_can_be_seen += seen_in_dark;
     }
 
-    if (!min_can_be_seen)
+    if (seen && (!min_can_be_seen || seen < min_can_be_seen))
     {
+        // it could be two various situations when
+        // real seen is more correct than min_can_be_seen:
+        //      * when real seen is initialized but min_can_be_seen is not
+        //      * or when both initialized but real seen is less
+
         min_can_be_seen = seen;
     }
 
