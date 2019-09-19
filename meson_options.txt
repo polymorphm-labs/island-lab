@@ -1,4 +1,6 @@
 option('link-argp', type : 'boolean', value : false,
     description : 'Link argp library')
+option('no-random', type : 'boolean', value : false,
+    description : 'Don\'t use getrandom()')
 
 # vi:ts=2:sw=2:et

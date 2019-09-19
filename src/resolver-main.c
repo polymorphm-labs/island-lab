@@ -12,8 +12,10 @@
 // argp_*
 #include <argp.h>
 
+#ifndef ISLAND_LAB_CONFIG_NO_RANDOM
 // getrandom
 #include <sys/random.h>
+#endif
 
 #include "island-lab-config.h"
 #include "git-rev.h"
@@ -50,12 +52,14 @@ static struct argp_option argp_options[] =
         .key = 'c',
         .doc = "continue resolving using explicit passed buildings-sequence",
     },
+#ifndef ISLAND_LAB_CONFIG_NO_RANDOM
     {
         .name = "single",
         .key = '1',
         .doc = "return no more than single solution, randomly selected "
                 "from all resolved",
     },
+#endif
     {},
 };
 
@@ -106,6 +110,7 @@ show_iter (int iter_made, int branches, void *show_iter_data)
     fprintf (stream, "iteration %d: %d branches\n", iter_made, branches);
 }
 
+#ifndef ISLAND_LAB_CONFIG_NO_RANDOM
 static int
 select_single (int resolved)
 {
@@ -130,6 +135,7 @@ select_single (int resolved)
 
     return rnd % resolved;
 }
+#endif
 
 static void
 print_buildings (FILE *stream, int *buildings)
@@ -339,12 +345,14 @@ main (int argc, char *argv[])
         goto exit;
     }
 
+#ifndef ISLAND_LAB_CONFIG_NO_RANDOM
     if (arguments.single)
     {
         int i = select_single (resolved);
         print_buildings (stdout, resolved_buildingss[i]);
         goto exit;
     }
+#endif
 
     for (int i = 0; i < resolved; ++i)
     {
