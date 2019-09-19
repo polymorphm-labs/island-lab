@@ -12,6 +12,9 @@
 // argp_*
 #include <argp.h>
 
+// getrandom
+#include <sys/random.h>
+
 #include "island-lab-config.h"
 #include "git-rev.h"
 #include "util.h"
@@ -37,6 +40,7 @@ void (*argp_program_version_hook) (FILE *, struct argp_state *) =
 struct arguments
 {
     int do_continue;
+    int single;
 };
 
 static struct argp_option argp_options[] =
@@ -45,6 +49,12 @@ static struct argp_option argp_options[] =
         .name = "continue",
         .key = 'c',
         .doc = "continue resolving using explicit passed buildings-sequence",
+    },
+    {
+        .name = "single",
+        .key = '1',
+        .doc = "return no more than single solution, randomly selected "
+                "from all resolved",
     },
     {},
 };
@@ -59,6 +69,10 @@ argp_parser (int key, char *arg __attribute__ ((unused)),
     {
         case 'c':
             arguments->do_continue = 1;
+            break;
+
+        case '1':
+            arguments->single = 1;
             break;
 
         case ARGP_KEY_ARG:
@@ -90,6 +104,31 @@ show_iter (int iter_made, int branches, void *show_iter_data)
     FILE *stream = options->stream;
 
     fprintf (stream, "iteration %d: %d branches\n", iter_made, branches);
+}
+
+static int
+select_single (int resolved)
+{
+    unsigned rnd;
+
+    for (;;)
+    {
+        ssize_t res = getrandom (&rnd, sizeof (rnd), 0);
+
+        if (res == -1)
+        {
+            abort ();
+        }
+
+        if (res != sizeof (rnd))
+        {
+            continue;
+        }
+
+        break;
+    }
+
+    return rnd % resolved;
 }
 
 static void
@@ -282,18 +321,28 @@ main (int argc, char *argv[])
     resolved = RSL_S (resolve) (perimeter, buildings, &resolved_buildingss,
             &rsl_options, &error);
 
-    if (!resolved && error)
+    if (!resolved)
     {
-        switch (error)
+        if (error)
         {
-            case RSL_S (max_branches_exceeded_error):
-                fprintf (stderr, "max branches exceeded! "
-                        "use environment variable %s to increase this limit\n",
-                        ENV_NAME ("MAX_BRANCHES"));
-                break;
-        }
+            switch (error)
+            {
+                case RSL_S (max_branches_exceeded_error):
+                    fprintf (stderr, "max branches exceeded! "
+                            "use environment variable %s to increase this limit\n",
+                            ENV_NAME ("MAX_BRANCHES"));
+                    break;
+            }
 
-        exit_code = EXIT_FAILURE;
+            exit_code = EXIT_FAILURE;
+        }
+        goto exit;
+    }
+
+    if (arguments.single)
+    {
+        int i = select_single (resolved);
+        print_buildings (stdout, resolved_buildingss[i]);
         goto exit;
     }
 

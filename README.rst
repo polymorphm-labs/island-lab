@@ -58,6 +58,8 @@ The output::
 
         Usage: island-lab-resolver [OPTION...]
 
+          -1, --single               return no more than single solution, randomly
+                                     selected from all resolved
           -c, --continue             continue resolving using explicit passed
                                      buildings-sequence
           -?, --help                 Give this help list
