@@ -16,7 +16,6 @@
 #define UTL_S(name) island_lab_util_ ## name
 #define S(name) island_lab_resolver_ ## name
 
-
 static int
 is_line_unique (int *buildings, int (*line_building_idx) (int cns, int var),
         int cns)
@@ -183,59 +182,50 @@ is_observer_possible (int *perimeter, int *buildings,
 }
 
 static int
-are_buildings_allowed (int *perimeter, int *buildings, int j, int i)
+are_hori_buildings_allowed (int *perimeter, int *buildings, int j)
 {
-    // checking for the puzzle's rules!
-    // whe should not check every building.
-    // looking at line(j) and row(i) should be enough.
+    // checking for the puzzle's rules selectively for a horizontal line (j).
+    //
+    // steps:
+    //      1. checking for horizontal line uniqueness.
+    //      2. checking for east observer possibility.
+    //      3. checking for west observer possibility.
 
-    // checking for horizontal line uniqueness
+    return is_line_unique (buildings, UTL_S (hori_building_idx), j) &&
+            is_observer_possible (perimeter, buildings,
+                    UTL_S (east_obs_idx), UTL_S (rev_hori_building_idx), j) &&
+            is_observer_possible (perimeter, buildings,
+                    UTL_S (west_obs_idx), UTL_S (hori_building_idx), j);
+}
 
-    if (j != -1 && !is_line_unique (buildings, UTL_S (hori_building_idx), j))
-    {
-        return 0;
-    }
+static int
+are_vert_buildings_allowed (int *perimeter, int *buildings, int i)
+{
+    // checking for the puzzle's rules selectively for a vertical line (i).
+    //
+    // steps:
+    //      1. checking for vertical line uniqueness.
+    //      2. checking for north observer possibility.
+    //      3. checking for south observer possibility.
 
-    // checking for vertical line uniqueness
+    return is_line_unique (buildings, UTL_S (vert_building_idx), i) &&
+            is_observer_possible (perimeter, buildings,
+                    UTL_S (north_obs_idx), UTL_S (vert_building_idx), i) &&
+            is_observer_possible (perimeter, buildings,
+                    UTL_S (south_obs_idx), UTL_S (rev_vert_building_idx), i);
+}
 
-    if (i != -1 && !is_line_unique (buildings, UTL_S (vert_building_idx), i))
-    {
-        return 0;
-    }
+static int
+is_building_allowed (int *perimeter, int *buildings, int j, int i)
+{
+    // checking for the puzzle's rules for only building.
+    // we should not check every building here.
+    //
+    // in this use case looking at one horizontal line (j)
+    // and one vertical line (i) should be enough.
 
-    // checking for north observer possibility
-
-    if (i != -1 && !is_observer_possible (perimeter, buildings,
-            UTL_S (north_obs_idx), UTL_S (vert_building_idx), i))
-    {
-        return 0;
-    }
-
-    // checking for east observer possibility
-
-    if (j != -1 && !is_observer_possible (perimeter, buildings,
-            UTL_S (east_obs_idx), UTL_S (rev_hori_building_idx), j))
-    {
-        return 0;
-    }
-
-    // checking for south observer possibility
-
-    if (i != -1 && !is_observer_possible (perimeter, buildings,
-            UTL_S (south_obs_idx), UTL_S (rev_vert_building_idx), i))
-    {
-        return 0;
-    }
-
-    // checking for west observer possibility
-
-    if (j != -1 && !is_observer_possible (perimeter, buildings,
-            UTL_S (west_obs_idx), UTL_S (hori_building_idx), j))
-    {
-        return 0;
-    }
-
-    return 1;
+    return are_hori_buildings_allowed (perimeter, buildings, j) &&
+            are_vert_buildings_allowed (perimeter, buildings, i);
 }
 
 static int
@@ -247,7 +237,7 @@ are_all_buildings_allowed (int *perimeter, int *buildings)
 
     for (int j = 0; j < UTL_S (general_size) (); ++j)
     {
-        if (!are_buildings_allowed (perimeter, buildings, j, -1))
+        if (!are_hori_buildings_allowed (perimeter, buildings, j))
         {
             return 0;
         }
@@ -257,7 +247,7 @@ are_all_buildings_allowed (int *perimeter, int *buildings)
 
     for (int i = 0; i < UTL_S (general_size) (); ++i)
     {
-        if (!are_buildings_allowed (perimeter, buildings, -1, i))
+        if (!are_vert_buildings_allowed (perimeter, buildings, i))
         {
             return 0;
         }
@@ -648,7 +638,7 @@ S (resolve) (int *perimeter, int *buildings, int ***resolved_buildingss_ptr,
 
                     next_buildings[UTL_S (building_idx) (j, i)] = building;
 
-                    if (are_buildings_allowed (perimeter, next_buildings,
+                    if (is_building_allowed (perimeter, next_buildings,
                             j, i))
                     {
                         add_allocated_buildings_node (multiverse_b);
