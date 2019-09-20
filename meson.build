@@ -3,6 +3,7 @@ project('island-lab', 'c',
 
 link_argp_opt = get_option('link-argp')
 no_random_opt = get_option('no-random')
+custom_reallocarray_opt = get_option('custom-reallocarray')
 
 sys_dep = []
 

@@ -2,6 +2,7 @@ conf_data = configuration_data()
 conf_data.set_quoted('ISLAND_LAB_CONFIG_NAME', meson.project_name())
 conf_data.set_quoted('ISLAND_LAB_CONFIG_VERSION', meson.project_version())
 conf_data.set('ISLAND_LAB_CONFIG_NO_RANDOM', no_random_opt)
+conf_data.set('ISLAND_LAB_CONFIG_CUSTOM_REALLOCARRAY', custom_reallocarray_opt)
 conf_data.set('ISLAND_LAB_CONFIG_SIZE', 6)
 conf_data.set('ISLAND_LAB_CONFIG_INIT_BUILDINGS_HEAP', 16384)
 conf_data.set('ISLAND_LAB_CONFIG_DEFAULT_MAX_BRANCHES', 16777216)
@@ -13,17 +14,23 @@ git_rev_c = vcs_tag(command : ['git', 'describe', '--always', '--long',
                     input : 'git-rev.c.in',
                     output : 'git-rev.c')
 
+shared_sources = []
+
+if custom_reallocarray_opt
+  shared_sources += 'custom-reallocarray.c'
+endif
+
 resolver_sources = [
   'resolver-main.c',
   'resolver.c',
   git_rev_c,
-]
+] + shared_sources
 
 visual_sources = [
   'visual-main.c',
   'visual.c',
   git_rev_c,
-]
+] + shared_sources
 
 executable('island-lab-resolver', resolver_sources,
            dependencies : sys_dep,

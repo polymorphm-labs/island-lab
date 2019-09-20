@@ -2,5 +2,7 @@ option('link-argp', type : 'boolean', value : false,
     description : 'Link argp library')
 option('no-random', type : 'boolean', value : false,
     description : 'Don\'t use getrandom()')
+option('custom-reallocarray', type : 'boolean', value : false,
+    description : 'Custom (foolish) implementation of reallocarray()')
 
 # vi:ts=2:sw=2:et

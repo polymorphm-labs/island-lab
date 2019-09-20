@@ -19,6 +19,11 @@
 #include <sys/random.h>
 #endif
 
+#ifdef ISLAND_LAB_CONFIG_CUSTOM_REALLOCARRAY
+#include "custom-reallocarray.h"
+#include "custom-reallocarray-compat.h"
+#endif
+
 #include "git-rev.h"
 #include "util.h"
 #include "resolver.h"

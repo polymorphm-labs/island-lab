@@ -2,7 +2,7 @@
 
 #include "island-lab-config.h"
 
-// abort
+// abort free *alloc*
 #include <stdlib.h>
 
 // memcpy
@@ -10,6 +10,11 @@
 
 // t*
 #include <search.h>
+
+#ifdef ISLAND_LAB_CONFIG_CUSTOM_REALLOCARRAY
+#include "custom-reallocarray.h"
+#include "custom-reallocarray-compat.h"
+#endif
 
 #include "util.h"
 #include "resolver.h"

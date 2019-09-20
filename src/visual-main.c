@@ -14,6 +14,11 @@
 // argp_*
 #include <argp.h>
 
+#ifdef ISLAND_LAB_CONFIG_CUSTOM_REALLOCARRAY
+#include "custom-reallocarray.h"
+#include "custom-reallocarray-compat.h"
+#endif
+
 #include "git-rev.h"
 #include "util.h"
 #include "visual.h"
