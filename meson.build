@@ -1,5 +1,5 @@
 project('island-lab', 'c',
-        version : 'PRE-1.0')
+        version : 'PRE-RELEASE')
 
 link_argp_opt = get_option('link-argp')
 no_random_opt = get_option('no-random')
