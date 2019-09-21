@@ -1,8 +1,12 @@
 option('link-argp', type : 'boolean', value : false,
-    description : 'Link argp library')
-option('no-random', type : 'boolean', value : false,
-    description : 'Don\'t use getrandom()')
+       description : 'Link argp library')
 option('custom-reallocarray', type : 'boolean', value : false,
-    description : 'Custom (foolish) implementation of reallocarray()')
+       description : 'Custom (foolish) implementation of reallocarray()')
+option('no-random', type : 'boolean', value : false,
+       description : 'Don\'t use getrandom()')
+option('init-buildings-heap', type : 'integer', min : 1, value : 16384,
+       description : 'How big memory block should be allocated first time each resolving iteration started')
+option('default-max-branches', type : 'integer', min : 1, value : 16777216,
+       description : 'Default limit value how many branches can exist at the same time while resolving')
 
 # vi:ts=2:sw=2:et

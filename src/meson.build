@@ -1,11 +1,14 @@
 conf_data = configuration_data()
 conf_data.set_quoted('ISLAND_LAB_CONFIG_NAME', meson.project_name())
 conf_data.set_quoted('ISLAND_LAB_CONFIG_VERSION', meson.project_version())
+conf_data.set('ISLAND_LAB_CONFIG_CUSTOM_REALLOCARRAY',
+              custom_reallocarray_opt)
 conf_data.set('ISLAND_LAB_CONFIG_NO_RANDOM', no_random_opt)
-conf_data.set('ISLAND_LAB_CONFIG_CUSTOM_REALLOCARRAY', custom_reallocarray_opt)
 conf_data.set('ISLAND_LAB_CONFIG_SIZE', 6)
-conf_data.set('ISLAND_LAB_CONFIG_INIT_BUILDINGS_HEAP', 16384)
-conf_data.set('ISLAND_LAB_CONFIG_DEFAULT_MAX_BRANCHES', 16777216)
+conf_data.set('ISLAND_LAB_CONFIG_INIT_BUILDINGS_HEAP',
+              init_buildings_heap_opt)
+conf_data.set('ISLAND_LAB_CONFIG_DEFAULT_MAX_BRANCHES',
+              default_max_branches_opt)
 configure_file(output : 'island-lab-config.h',
                configuration : conf_data)
 

@@ -167,11 +167,29 @@ Being in ``builddir`` to see all options::
 The output fragment::
 
         Project options:
-          Option              Current Value Possible Values Description                                      
-          ------              ------------- --------------- -----------                                      
-          custom-reallocarray false         [true, false]   Custom (foolish) implementation of reallocarray()
-          link-argp           false         [true, false]   Link argp library                                
-          no-random           false         [true, false]   Don't use getrandom()       
+          Option               Current Value Possible Values Description                                                                         
+          ------               ------------- --------------- -----------                                                                         
+          custom-reallocarray  false         [true, false]   Custom (foolish) implementation of reallocarray()                                   
+          default-max-branches 16777216      >=1             Default limit value how many branches can exist at the same time while resolving    
+          init-buildings-heap  16384         >=1             How big memory block should be allocated first time each resolving iteration started
+          link-argp            false         [true, false]   Link argp library                                                                   
+          no-random            false         [true, false]   Don't use getrandom()                                                               
+
+Example of setting::
+
+        meson setup ../builddir --warnlevel=2 \
+                        --buildtype=release -Db_lto=true \
+                        --prefix=`pwd`/../island-lab.BUILD
+
+        cd ../builddir
+
+        meson configure \
+                -Dinit-buildings-heap=524288 \
+                -Ddefault-max-branches=1048576
+
+        ninja install
+
+        cd ../island-lab.BUILD
 
 Compiling With Elbrus or With Another Stupid Compiler
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

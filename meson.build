@@ -2,8 +2,10 @@ project('island-lab', 'c',
         version : 'PRE-RELEASE')
 
 link_argp_opt = get_option('link-argp')
-no_random_opt = get_option('no-random')
 custom_reallocarray_opt = get_option('custom-reallocarray')
+no_random_opt = get_option('no-random')
+init_buildings_heap_opt = get_option('init-buildings-heap')
+default_max_branches_opt = get_option('default-max-branches')
 
 sys_dep = []
 
