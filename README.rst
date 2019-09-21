@@ -155,3 +155,46 @@ The output::
         4 | 3 4 2 5 1 6 |   
           +-------------+ 
                     4   
+
+Advanced Compiling
+------------------
+
+Before executing ``ninja`` command you can fine tune a compile configuration.
+Being in ``builddir`` to see all options::
+
+        meson configure
+
+The output fragment::
+
+        Project options:
+          Option              Current Value Possible Values Description                                      
+          ------              ------------- --------------- -----------                                      
+          custom-reallocarray false         [true, false]   Custom (foolish) implementation of reallocarray()
+          link-argp           false         [true, false]   Link argp library                                
+          no-random           false         [true, false]   Don't use getrandom()       
+
+Compiling With Elbrus or With Another Stupid Compiler
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Stupid compilers like ``Elbrus`` (``lcc``) will success compile the project
+with the next options::
+
+        meson configure \
+                -Dcustom-reallocarray=true \
+                -Dno-random=true
+
+Compiling With Clang
+~~~~~~~~~~~~~~~~~~~~
+
+It's enough to set ``CC`` environment to ``clang`` value on ``meson setup``
+stage, like in this example::
+
+        CC=clang meson setup ../buildclang --warnlevel=2 \
+                        --buildtype=release -Db_lto=true \
+                        --prefix=`pwd`/../island-lab.BUILDCLANG
+
+        cd ../buildclang
+
+        ninja install
+
+        cd ../island-lab.BUILDCLANG
