@@ -1,12 +1,13 @@
 #define _GNU_SOURCE
 
+#include "island-lab-config.h"
+
 // abort
 #include <stdlib.h>
 
 // fputc fprintf
 #include <stdio.h>
 
-#include "island-lab-config.h"
 #include "util.h"
 #include "visual.h"
 

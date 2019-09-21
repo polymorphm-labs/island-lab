@@ -1,5 +1,7 @@
 #define _GNU_SOURCE
 
+#include "island-lab-config.h"
+
 // abort
 #include <stdlib.h>
 
@@ -9,7 +11,6 @@
 // t*
 #include <search.h>
 
-#include "island-lab-config.h"
 #include "util.h"
 #include "resolver.h"
 

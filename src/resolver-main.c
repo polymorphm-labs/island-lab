@@ -1,5 +1,7 @@
 #define _GNU_SOURCE
 
+#include "island-lab-config.h"
+
 // abort free *alloc* EXIT_* atoi
 #include <stdlib.h>
 
@@ -17,7 +19,6 @@
 #include <sys/random.h>
 #endif
 
-#include "island-lab-config.h"
 #include "git-rev.h"
 #include "util.h"
 #include "resolver.h"
