@@ -3,6 +3,8 @@
 // *alloc*
 #include <stdlib.h>
 
+#include "custom-reallocarray.h"
+
 #define S(name) island_lab_custom_reallocarray_ ## name
 
 void *
