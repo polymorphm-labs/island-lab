@@ -450,35 +450,6 @@ struct multiverse_iter_item
 };
 
 static int
-compare_multiverse_iter_items (const void *pa, const void *pb)
-{
-    const struct multiverse_iter_item *item_a = pa;
-    const struct multiverse_iter_item *item_b = pb;
-
-    if (item_a->j < item_b->j)
-    {
-        return -1;
-    }
-
-    if (item_a->j > item_b->j)
-    {
-        return 1;
-    }
-
-    if (item_a->i < item_b->i)
-    {
-        return -1;
-    }
-
-    if (item_a->i > item_b->i)
-    {
-        return 1;
-    }
-
-    return 0;
-}
-
-static int
 prepare_iterations (int *buildings, struct multiverse_iter_item **iter_items_ptr)
 {
     // this function gets sequence (iter_items) of the resolving buildings.
@@ -491,10 +462,16 @@ prepare_iterations (int *buildings, struct multiverse_iter_item **iter_items_ptr
 
     int size = 0;
     struct multiverse_iter_item *iter_items = 0;
-    struct multiverse_iter_item iter_item;
     struct multiverse_iter_item best_iter_item;
     float distance;
-    float best_distance;
+    float best_distance = 0.0f;
+    int *filled_buildings = calloc (UTL_S (buildings_size) (),
+            sizeof (*filled_buildings));
+
+    if (!filled_buildings)
+    {
+        abort ();
+    }
 
     for (;;)
     {
@@ -504,36 +481,22 @@ prepare_iterations (int *buildings, struct multiverse_iter_item **iter_items_ptr
         {
             for (int i = 0; i < UTL_S (general_size) (); ++i)
             {
-                if (!buildings[UTL_S (building_idx) (j, i)])
+                int building_idx = UTL_S (building_idx) (j, i);
+
+                if (!buildings[building_idx] &&
+                        !filled_buildings[building_idx])
                 {
                     distance = ((float) j - centre) * ((float) j - centre) +
                             ((float) i - centre) * ((float) i - centre);
 
                     if (!found || distance > best_distance)
                     {
-                        iter_item = (struct multiverse_iter_item) {
+                        best_iter_item = (struct multiverse_iter_item) {
                             .j = j,
                             .i = i,
                         };
-
-                        int already_have = 0;
-
-                        for (int iter = 0; iter < size; ++iter)
-                        {
-                            if (compare_multiverse_iter_items (
-                                    &iter_items[iter], &iter_item) == 0)
-                            {
-                                already_have = 1;
-                                break;
-                            }
-                        }
-
-                        if (!already_have)
-                        {
-                            best_iter_item = iter_item;
-                            best_distance = distance;
-                            found = 1;
-                        }
+                        best_distance = distance;
+                        found = 1;
                     }
                 }
             }
@@ -553,7 +516,12 @@ prepare_iterations (int *buildings, struct multiverse_iter_item **iter_items_ptr
         }
 
         iter_items[size - 1] = best_iter_item;
+        filled_buildings[
+            UTL_S (building_idx) (best_iter_item.j, best_iter_item.i)
+        ] = 1;
     }
+
+    free (filled_buildings);
 
     *iter_items_ptr = iter_items;
     return size;
