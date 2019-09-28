@@ -174,7 +174,6 @@ The output fragment::
           general-size         6             >=1                Puzzle's general size value                                                         
           init-buildings-heap  16384         >=1                How big memory block should be allocated first time each resolving iteration started
           link-argp            false         [true, false]      Link argp library                                                                   
-          no-random            false         [true, false]      Don't use getrandom()                                                               
           tests                false         [true, false]      Build tests                                                                         
 
 Example of setting::
@@ -192,15 +191,6 @@ Example of setting::
         ninja install
 
         cd ../island-lab.BUILD
-
-Compiling With Elbrus or With Another Stupid Compiler
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Stupid compilers like ``Elbrus`` (``lcc``) will success compile the project
-with the next options::
-
-        meson configure \
-                -Dno-random=true
 
 Compiling With Clang
 ~~~~~~~~~~~~~~~~~~~~

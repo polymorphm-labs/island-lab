@@ -1,7 +1,5 @@
 option('link-argp', type : 'boolean', value : false,
        description : 'Link argp library')
-option('no-random', type : 'boolean', value : false,
-       description : 'Don\'t use getrandom()')
 option('general-size', type : 'integer', min : 1, value : 6,
        description : 'Puzzle\'s general size value')
 option('building-ctype', type : 'combo', choices : ['char', 'short', 'int'],
