@@ -139,8 +139,10 @@ main (int argc, char *argv[])
 
     int exit_code = EXIT_SUCCESS;
     FILE *stream = stdout;
-    int *perimeter = calloc (UTL_S (perimeter_size) (), sizeof (*perimeter));
-    int *buildings = calloc (UTL_S (buildings_size) (), sizeof (*buildings));
+    UTL_S (building_t) *perimeter = calloc (UTL_S (perimeter_size) (),
+            sizeof (*perimeter));
+    UTL_S (building_t) *buildings = calloc (UTL_S (buildings_size) (),
+            sizeof (*buildings));
     int token_i;
     char *token;
     char *tok_state;

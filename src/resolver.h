@@ -1,4 +1,6 @@
+#pragma push_macro ("UTL_S")
 #pragma push_macro ("S")
+#define UTL_S(name) island_lab_util_ ## name
 #define S(name) island_lab_resolver_ ## name
 
 enum
@@ -17,8 +19,10 @@ struct S (resolve_options)
 };
 
 int
-S (resolve) (int *perimeter, int *buildings, int ***resolved_buildingss_ptr,
+S (resolve) (UTL_S (building_t) *perimeter, UTL_S (building_t) *buildings,
+        UTL_S (building_t) ***resolved_buildingss_ptr,
         struct S (resolve_options) *options, int *error_ptr);
 
 #pragma pop_macro ("S")
+#pragma pop_macro ("UTL_S")
 // vi:ts=4:sw=4:et

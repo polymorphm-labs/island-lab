@@ -5,6 +5,7 @@ conf_data.set('ISLAND_LAB_CONFIG_CUSTOM_REALLOCARRAY',
               custom_reallocarray_opt)
 conf_data.set('ISLAND_LAB_CONFIG_NO_RANDOM', no_random_opt)
 conf_data.set('ISLAND_LAB_CONFIG_GENERAL_SIZE', general_size_opt)
+conf_data.set('ISLAND_LAB_CONFIG_BUILDING_CTYPE', building_ctype_opt)
 conf_data.set('ISLAND_LAB_CONFIG_INIT_BUILDINGS_HEAP',
               init_buildings_heap_opt)
 conf_data.set('ISLAND_LAB_CONFIG_DEFAULT_MAX_BRANCHES',

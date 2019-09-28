@@ -1,7 +1,9 @@
-#pragma push_macro ("S")
 #pragma push_macro ("CFG_M")
+#pragma push_macro ("S")
 #define CFG_M(name) ISLAND_LAB_CONFIG_ ## name
 #define S(name) island_lab_util_ ## name
+
+typedef CFG_M (BUILDING_CTYPE) S (building_t);
 
 static inline int
 S (general_size) (void)
@@ -75,6 +77,6 @@ S (rev_vert_building_idx) (int cns, int var)
     return S (building_idx) (S (general_size) () - var - 1, cns);
 }
 
-#pragma pop_macro ("CFG_M")
 #pragma pop_macro ("S")
+#pragma pop_macro ("CFG_M")
 // vi:ts=4:sw=4:et

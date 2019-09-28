@@ -144,7 +144,7 @@ select_single (int resolved)
 #endif
 
 static void
-print_buildings (FILE *stream, int *buildings)
+print_buildings (FILE *stream, UTL_S (building_t) *buildings)
 {
     char *str = 0;
     char *swp;
@@ -183,15 +183,17 @@ main (int argc, char *argv[])
     int exit_code = EXIT_SUCCESS;
     char *perimeter_str = 0;
     char *buildings_str = 0;
-    int *perimeter = calloc (UTL_S (perimeter_size) (), sizeof (*perimeter));
-    int *buildings = calloc (UTL_S (buildings_size) (), sizeof (*buildings));
+    UTL_S (building_t) *perimeter = calloc (UTL_S (perimeter_size) (),
+            sizeof (*perimeter));
+    UTL_S (building_t) *buildings = calloc (UTL_S (buildings_size) (),
+            sizeof (*buildings));
     int token_i;
     char *token;
     char *tok_state;
     int token_int;
     int resolved = 0;
     int error;
-    int **resolved_buildingss = 0;
+    UTL_S (building_t) **resolved_buildingss = 0;
     struct resolve_hook_options rsl_hook_options = {
         .stream = stderr,
     };

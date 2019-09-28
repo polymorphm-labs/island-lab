@@ -6,6 +6,8 @@ option('no-random', type : 'boolean', value : false,
        description : 'Don\'t use getrandom()')
 option('general-size', type : 'integer', min : 1, value : 6,
        description : 'Puzzle\'s general size value')
+option('building-ctype', type : 'combo', choices : ['char', 'short', 'int'],
+       value : 'char', description : 'C-type for a puzzle\'s building defining')
 option('init-buildings-heap', type : 'integer', min : 1, value : 16384,
        description : 'How big memory block should be allocated first time each resolving iteration started')
 option('default-max-branches', type : 'integer', min : 1, value : 16777216,

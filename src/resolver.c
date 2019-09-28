@@ -23,8 +23,8 @@
 #define S(name) island_lab_resolver_ ## name
 
 static int
-is_line_unique (int *buildings, int (*line_building_idx) (int cns, int var),
-        int cns)
+is_line_unique (UTL_S (building_t) *buildings,
+        int (*line_building_idx) (int cns, int var), int cns)
 {
     // checking for the puzzle's rule about line's uniqueness.
     //
@@ -58,8 +58,8 @@ is_line_unique (int *buildings, int (*line_building_idx) (int cns, int var),
 }
 
 static int
-is_observer_possible (int *perimeter, int *buildings,
-        int (*side_obs_idx) (int cns),
+is_observer_possible (UTL_S (building_t) *perimeter,
+        UTL_S (building_t) *buildings, int (*side_obs_idx) (int cns),
         int (*line_building_idx) (int cns, int var), int cns)
 {
     // checking for the puzzle's rule about side observer possibility.
@@ -188,7 +188,8 @@ is_observer_possible (int *perimeter, int *buildings,
 }
 
 static int
-are_hori_buildings_allowed (int *perimeter, int *buildings, int j)
+are_hori_buildings_allowed (UTL_S (building_t) *perimeter,
+        UTL_S (building_t) *buildings, int j)
 {
     // checking for the puzzle's rules selectively for a horizontal line (j).
     //
@@ -205,7 +206,8 @@ are_hori_buildings_allowed (int *perimeter, int *buildings, int j)
 }
 
 static int
-are_vert_buildings_allowed (int *perimeter, int *buildings, int i)
+are_vert_buildings_allowed (UTL_S (building_t) *perimeter,
+        UTL_S (building_t) *buildings, int i)
 {
     // checking for the puzzle's rules selectively for a vertical line (i).
     //
@@ -222,7 +224,8 @@ are_vert_buildings_allowed (int *perimeter, int *buildings, int i)
 }
 
 static int
-is_building_allowed (int *perimeter, int *buildings, int j, int i)
+is_building_allowed (UTL_S (building_t) *perimeter,
+        UTL_S (building_t) *buildings, int j, int i)
 {
     // checking for the puzzle's rules for only building.
     // we should not check every building here.
@@ -235,7 +238,8 @@ is_building_allowed (int *perimeter, int *buildings, int j, int i)
 }
 
 static int
-are_all_buildings_allowed (int *perimeter, int *buildings)
+are_all_buildings_allowed (UTL_S (building_t) *perimeter,
+        UTL_S (building_t) *buildings)
 {
     // version of checking puzzle's rules for all buildings on the island
 
@@ -263,7 +267,7 @@ are_all_buildings_allowed (int *perimeter, int *buildings)
 }
 
 static unsigned
-hash_buildings (int *buildings)
+hash_buildings (UTL_S (building_t) *buildings)
 {
     unsigned h = 5381;
 
@@ -280,7 +284,7 @@ struct multiverse
     int init_buildings_heap;
     int allocated;
     int size;
-    int *buildings_heap;
+    UTL_S (building_t) *buildings_heap;
     void *tree;
 };
 
@@ -303,7 +307,7 @@ clear_multiverse (struct multiverse *multiverse)
     multiverse->allocated = 0;
 }
 
-static int *
+static UTL_S (building_t) *
 get_buildings_by_idx (struct multiverse *multiverse, int buildings_idx)
 {
     return &multiverse->buildings_heap
@@ -326,9 +330,9 @@ compare_buildings_nodes (const void *pa, const void *pb)
         return 1;
     }
 
-    int *buildings_a = get_buildings_by_idx (node_a->multiverse,
+    UTL_S (building_t) *buildings_a = get_buildings_by_idx (node_a->multiverse,
             node_a->buildings_idx);
-    int *buildings_b = get_buildings_by_idx (node_b->multiverse,
+    UTL_S (building_t) *buildings_b = get_buildings_by_idx (node_b->multiverse,
             node_b->buildings_idx);
 
     for (int i = 0; i < UTL_S (buildings_size) (); ++i)
@@ -382,7 +386,7 @@ static void
 add_allocated_buildings_node (struct multiverse *multiverse)
 {
     int buildings_idx = multiverse->size;
-    int *buildings = get_buildings_by_idx (multiverse, buildings_idx);
+    UTL_S (building_t) *buildings = get_buildings_by_idx (multiverse, buildings_idx);
     unsigned hash = hash_buildings (buildings);
 
     struct buildings_node *node = malloc (sizeof (*node));
@@ -418,24 +422,27 @@ add_allocated_buildings_node (struct multiverse *multiverse)
 }
 
 static void
-copy_buildings (int *src_buildings, int *dst_buildings)
+copy_buildings (UTL_S (building_t) *src_buildings,
+        UTL_S (building_t) *dst_buildings)
 {
     memcpy (dst_buildings, src_buildings,
             UTL_S (buildings_size) () * sizeof (*src_buildings));
 }
 
-static int *
-allocate_buildings_copy (struct multiverse *multiverse, int *src_buildings)
+static UTL_S (building_t) *
+allocate_buildings_copy (struct multiverse *multiverse,
+        UTL_S (building_t) *src_buildings)
 {
     int buildings_idx = allocate_buildings_idx (multiverse);
-    int *dst_buildings = get_buildings_by_idx (multiverse, buildings_idx);
+    UTL_S (building_t) *dst_buildings = get_buildings_by_idx (multiverse, buildings_idx);
     copy_buildings (src_buildings, dst_buildings);
 
     return dst_buildings;
 }
 
 static void
-add_buildings_copy (struct multiverse *multiverse, int *buildings)
+add_buildings_copy (struct multiverse *multiverse,
+        UTL_S (building_t) *buildings)
 {
     // adding buildings copy to a multiverse
 
@@ -450,7 +457,8 @@ struct multiverse_iter_item
 };
 
 static int
-prepare_iterations (int *buildings, struct multiverse_iter_item **iter_items_ptr)
+prepare_iterations (UTL_S (building_t) *buildings,
+        struct multiverse_iter_item **iter_items_ptr)
 {
     // this function gets sequence (iter_items) of the resolving buildings.
     // but besides we want to have a specific order of this sequence.
@@ -465,7 +473,7 @@ prepare_iterations (int *buildings, struct multiverse_iter_item **iter_items_ptr
     struct multiverse_iter_item best_iter_item;
     float distance;
     float best_distance = 0.0f;
-    int *filled_buildings = calloc (UTL_S (buildings_size) (),
+    UTL_S (building_t) *filled_buildings = calloc (UTL_S (buildings_size) (),
             sizeof (*filled_buildings));
 
     if (!filled_buildings)
@@ -529,12 +537,12 @@ prepare_iterations (int *buildings, struct multiverse_iter_item **iter_items_ptr
 
 static int
 return_buildingss (struct multiverse *multiverse,
-        int ***returned_buildingss_ptr)
+        UTL_S (building_t) ***returned_buildingss_ptr)
 {
     // return buildings into new memory blocks
 
     int size = multiverse->size;
-    int **buildingss = calloc (size, sizeof (*buildingss));
+    UTL_S (building_t) **buildingss = calloc (size, sizeof (*buildingss));
 
     if (!buildingss)
     {
@@ -543,7 +551,7 @@ return_buildingss (struct multiverse *multiverse,
 
     for (int i = 0; i < size; ++i)
     {
-        int *buildings = get_buildings_by_idx (multiverse, i);
+        UTL_S (building_t) *buildings = get_buildings_by_idx (multiverse, i);
         buildingss[i] = calloc (UTL_S (buildings_size) (),
                 sizeof (*buildingss[i]));
 
@@ -560,7 +568,8 @@ return_buildingss (struct multiverse *multiverse,
 }
 
 int
-S (resolve) (int *perimeter, int *buildings, int ***resolved_buildingss_ptr,
+S (resolve) (UTL_S (building_t) *perimeter, UTL_S (building_t) *buildings,
+        UTL_S (building_t) ***resolved_buildingss_ptr,
         struct S (resolve_options) *options, int *error_ptr)
 {
     int resolved = 0;
@@ -600,14 +609,14 @@ S (resolve) (int *perimeter, int *buildings, int ***resolved_buildingss_ptr,
                     buildings_idx < multiverse_a->size;
                     ++buildings_idx)
             {
-                int *prev_buildings = get_buildings_by_idx (multiverse_a,
+                UTL_S (building_t) *prev_buildings = get_buildings_by_idx (multiverse_a,
                         buildings_idx);
 
                 for (int building = 1;
                         building <= UTL_S (general_size) ();
                         ++building)
                 {
-                    int *next_buildings = allocate_buildings_copy (
+                    UTL_S (building_t) *next_buildings = allocate_buildings_copy (
                             multiverse_b, prev_buildings);
 
                     next_buildings[UTL_S (building_idx) (j, i)] = building;
@@ -650,7 +659,7 @@ S (resolve) (int *perimeter, int *buildings, int ***resolved_buildingss_ptr,
             buildings_idx < multiverse_a->size;
             ++buildings_idx)
     {
-        int *prev_buildings = get_buildings_by_idx (multiverse_a,
+        UTL_S (building_t) *prev_buildings = get_buildings_by_idx (multiverse_a,
                 buildings_idx);
 
         if (are_all_buildings_allowed (perimeter, prev_buildings))

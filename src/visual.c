@@ -129,7 +129,7 @@ append_num_cell (char **strp, int num)
 }
 
 static void
-append_perimeter (char **strp, int *perimeter)
+append_perimeter (char **strp, UTL_S (building_t) *perimeter)
 {
     char *swp;
     int res;
@@ -156,7 +156,7 @@ append_perimeter (char **strp, int *perimeter)
 }
 
 static void
-append_buildings (char **strp, int *buildings)
+append_buildings (char **strp, UTL_S (building_t) *buildings)
 {
     char *swp;
     int res;
@@ -184,8 +184,8 @@ append_buildings (char **strp, int *buildings)
 }
 
 void
-S (print_island) (FILE *stream, int *perimeter, int *buildings, int print_raw,
-        int indent)
+S (print_island) (FILE *stream, UTL_S (building_t) *perimeter,
+        UTL_S (building_t) *buildings, int print_raw, int indent)
 {
     char *str = calloc (1, sizeof (*str));
 
