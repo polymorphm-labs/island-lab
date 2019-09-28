@@ -21,18 +21,22 @@ git_rev_c = vcs_tag(command : ['git', 'describe', '--always', '--long',
 shared_sources = []
 
 if custom_reallocarray_opt
-  shared_sources += 'custom-reallocarray.c'
+  shared_sources += files('custom-reallocarray.c')
 endif
 
 resolver_sources = [
-  'resolver-main.c',
-  'resolver.c',
+  files(
+    'resolver-main.c',
+    'resolver.c',
+  ),
   git_rev_c,
 ] + shared_sources
 
 visual_sources = [
-  'visual-main.c',
-  'visual.c',
+  files(
+    'visual-main.c',
+    'visual.c',
+  ),
   git_rev_c,
 ] + shared_sources
 
