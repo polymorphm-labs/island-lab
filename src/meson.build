@@ -1,8 +1,7 @@
 conf_data = configuration_data()
 conf_data.set_quoted('ISLAND_LAB_CONFIG_NAME', meson.project_name())
 conf_data.set_quoted('ISLAND_LAB_CONFIG_VERSION', meson.project_version())
-conf_data.set('ISLAND_LAB_CONFIG_CUSTOM_REALLOCARRAY',
-              custom_reallocarray_opt)
+conf_data.set('ISLAND_LAB_CONFIG_CUSTOM_REALLOCARRAY', custom_reallocarray_opt)
 conf_data.set('ISLAND_LAB_CONFIG_NO_RANDOM', no_random_opt)
 conf_data.set('ISLAND_LAB_CONFIG_GENERAL_SIZE', general_size_opt)
 conf_data.set('ISLAND_LAB_CONFIG_BUILDING_CTYPE', building_ctype_opt)

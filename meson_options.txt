@@ -1,7 +1,5 @@
 option('link-argp', type : 'boolean', value : false,
        description : 'Link argp library')
-option('custom-reallocarray', type : 'boolean', value : false,
-       description : 'Custom (foolish) implementation of reallocarray()')
 option('no-random', type : 'boolean', value : false,
        description : 'Don\'t use getrandom()')
 option('general-size', type : 'integer', min : 1, value : 6,

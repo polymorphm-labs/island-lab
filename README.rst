@@ -170,7 +170,6 @@ The output fragment::
           Option               Current Value Possible Values    Description                                                                         
           ------               ------------- ---------------    -----------                                                                         
           building-ctype       char          [char, short, int] C-type for a puzzle's building defining                                             
-          custom-reallocarray  false         [true, false]      Custom (foolish) implementation of reallocarray()                                   
           default-max-branches 16777216      >=1                Default limit value how many branches can exist at the same time while resolving    
           general-size         6             >=1                Puzzle's general size value                                                         
           init-buildings-heap  16384         >=1                How big memory block should be allocated first time each resolving iteration started
@@ -201,7 +200,6 @@ Stupid compilers like ``Elbrus`` (``lcc``) will success compile the project
 with the next options::
 
         meson configure \
-                -Dcustom-reallocarray=true \
                 -Dno-random=true
 
 Compiling With Clang
