@@ -6,7 +6,7 @@
 static inline int
 S (general_size) (void)
 {
-    return CFG_M (SIZE);
+    return CFG_M (GENERAL_SIZE);
 }
 
 static inline int
