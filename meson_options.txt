@@ -12,5 +12,6 @@ option('init-buildings-heap', type : 'integer', min : 1, value : 16384,
        description : 'How big memory block should be allocated first time each resolving iteration started')
 option('default-max-branches', type : 'integer', min : 1, value : 16777216,
        description : 'Default limit value how many branches can exist at the same time while resolving')
+option('tests', type : 'boolean', value : false, description : 'Build tests')
 
 # vi:ts=2:sw=2:et

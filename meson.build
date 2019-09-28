@@ -1,5 +1,4 @@
-project('island-lab', 'c',
-        version : 'PRE-RELEASE')
+project('island-lab', 'c', version : 'PRE-RELEASE')
 
 link_argp_opt = get_option('link-argp')
 custom_reallocarray_opt = get_option('custom-reallocarray')
@@ -8,6 +7,7 @@ general_size_opt = get_option('general-size')
 building_ctype_opt = get_option('building-ctype')
 init_buildings_heap_opt = get_option('init-buildings-heap')
 default_max_branches_opt = get_option('default-max-branches')
+tests_opt = get_option('tests')
 
 sys_dep = []
 
@@ -16,5 +16,9 @@ if link_argp_opt
 endif
 
 subdir('src')
+
+if tests_opt
+  subdir('tests')
+endif
 
 # vi:ts=2:sw=2:et

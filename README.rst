@@ -176,6 +176,7 @@ The output fragment::
           init-buildings-heap  16384         >=1                How big memory block should be allocated first time each resolving iteration started
           link-argp            false         [true, false]      Link argp library                                                                   
           no-random            false         [true, false]      Don't use getrandom()                                                               
+          tests                false         [true, false]      Build tests                                                                         
 
 Example of setting::
 
