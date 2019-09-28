@@ -12,10 +12,14 @@
 #define UTL_S(name) island_lab_util_ ## name
 #define VIS_S(name) island_lab_visual_ ## name
 
-static UTL_S (building_t) test_perimeter[] = {0,0,0,2,2,0,0,0,0,6,3,0,0,4,0,0,0,0,4,4,0,3,0,0};
-static UTL_S (building_t) test_buildings_a[] = {5,6,1,4,3,2,4,1,3,2,6,5,2,3,6,1,5,4,6,5,4,3,2,1,1,2,5,6,4,3,3,4,2,5,1,6};
-static UTL_S (building_t) test_buildings_b[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-static UTL_S (building_t) test_buildings_c[] = {0,6,0,4,3,0,0,0,3,2,0,5,2,3,6,0,5,4,6,5,0,0,2,1,0,2,5,6,4,3,3,4,2,5,0,6};
+static UTL_S (building_t) test_perimeter[] =
+        {0,0,0,2,2,0,0,0,0,6,3,0,0,4,0,0,0,0,4,4,0,3,0,0};
+static UTL_S (building_t) test_buildings_a[] =
+        {5,6,1,4,3,2,4,1,3,2,6,5,2,3,6,1,5,4,6,5,4,3,2,1,1,2,5,6,4,3,3,4,2,5,1,6};
+static UTL_S (building_t) test_buildings_b[] =
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+static UTL_S (building_t) test_buildings_c[] =
+        {0,6,0,4,3,0,0,0,3,2,0,5,2,3,6,0,5,4,6,5,0,0,2,1,0,2,5,6,4,3,3,4,2,5,0,6};
 static int test_indent_a = 13;
 static int test_indent_b = 17;
 
