@@ -24,27 +24,23 @@ if custom_reallocarray_opt
   shared_sources += files('custom-reallocarray.c')
 endif
 
-resolver_sources = [
-  files(
-    'resolver-main.c',
-    'resolver.c',
-  ),
-  git_rev_c,
-] + shared_sources
+resolver_sources = files(
+  'resolver-main.c',
+  'resolver.c',
+)
 
-visual_sources = [
-  files(
-    'visual-main.c',
-    'visual.c',
-  ),
-  git_rev_c,
-] + shared_sources
+visual_sources = files(
+  'visual-main.c',
+  'visual.c',
+)
 
 executable('island-lab-resolver', resolver_sources,
+           shared_sources, git_rev_c,
            dependencies : sys_dep,
            install : true)
 
 executable('island-lab-visual', visual_sources,
+           shared_sources, git_rev_c,
            dependencies : sys_dep,
            install : true)
 
