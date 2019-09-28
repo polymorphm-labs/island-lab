@@ -207,3 +207,21 @@ stage, like in this example::
         ninja install
 
         cd ../island-lab.BUILDCLANG
+
+Running Tests
+~~~~~~~~~~~~~
+
+Being in ``builddir`` reconfigure the compile configuration to build test
+suites::
+
+        meson configure -Dtests=true
+
+Now tests can be runned simply via ``ninja``::
+
+        ninja test
+
+Or with ``valgrind`` wrapper::
+
+        meson test --wrap=valgrind
+
+        less meson-logs/testlog-valgrind.txt
